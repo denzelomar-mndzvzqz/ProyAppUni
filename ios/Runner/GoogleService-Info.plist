@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyCz6Ux8bNG8anCnzVYPw4f7XLPrkvIPX5E</string>
+	<key>GCM_SENDER_ID</key>
+	<string>214959503916</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.fcqApp</string>
+	<key>PROJECT_ID</key>
+	<string>fcq-notificaciones-5250f</string>
+	<key>STORAGE_BUCKET</key>
+	<string>fcq-notificaciones-5250f.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:214959503916:ios:ed572912f4ee3d0c30af89</string>
+</dict>
+</plist>
