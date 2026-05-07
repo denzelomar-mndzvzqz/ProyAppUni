@@ -1,5 +1,6 @@
 import 'package:fcq_app/main.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FirebaseApi {
   //instancia de firebase messaging
@@ -7,20 +8,27 @@ class FirebaseApi {
 
   //Función para inicializar notificaciones
   Future<void> iniNotificacion() async {
-    //Pedir permiso al usuario
-    await firebase.requestPermission();
+    try {
+      //Pedir permiso al usuario (con timeout para no bloquear)
+      await firebase.requestPermission().timeout(const Duration(seconds: 5));
 
-    //Suscribe automáticamente al usuario al tema de Actividades
-    await firebase.subscribeToTopic('Actividades');
+      //Suscribe automáticamente al usuario al tema de Actividades
+      await firebase.subscribeToTopic('Actividades').timeout(const Duration(seconds: 5));
 
-    //Obtener el token del dispositivo actual
-    final token = await firebase.getToken();
+      //Obtener el token del dispositivo actual
+      final token = await firebase.getToken();
 
-    //Mandar token al servidor en caso de querer identificar cada dispositivo
-    // ignore: avoid_print
-    print('token: $token');
+      if (token != null) {
+        SharedPreferences pref = await SharedPreferences.getInstance();
+        await pref.setString('dispositivo_token', token);
+        print('✅ Firebase Token obtenido exitosamente');
+      }
 
-    iniPushNotificacion();
+      iniPushNotificacion();
+    } catch (e) {
+      print('⚠️ Firebase no se pudo inicializar completamente: $e');
+      // No lanzamos error para no romper el flujo de la App
+    }
   }
 
   //Funcion que manda al usuario a una pantalla específica cuando da clic en la notificación

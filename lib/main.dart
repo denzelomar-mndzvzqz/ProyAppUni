@@ -7,7 +7,6 @@ import 'package:fcq_app/index.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:fcq_app/funciones.dart';
 import 'package:fcq_app/parciales.dart';
-import 'package:fcq_app/info.dart';
 
 // Clave global para el navigatorKey, que permite la navegación en toda la aplicación
 final navigatorKey = GlobalKey<NavigatorState>();
@@ -15,7 +14,10 @@ final navigatorKey = GlobalKey<NavigatorState>();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await FirebaseApi().iniNotificacion();
+  
+  // No esperamos a las notificaciones para arrancar la App
+  FirebaseApi().iniNotificacion(); 
+
   runApp(const LoginApp());
 }
 
@@ -35,6 +37,9 @@ class LoginApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        useMaterial3: true,
+      ),
       title: 'FCQ',
       home: const LoginPage(),
       navigatorKey: navigatorKey,
@@ -42,7 +47,6 @@ class LoginApp extends StatelessWidget {
         '/login': (BuildContext context) => const LoginPage(),
         '/index': (BuildContext context) => const Home(),
         '/parciales': (BuildContext context) => const Parciales(),
-        '/info': (BuildContext context) => const Info(),
       },
     );
   }
@@ -62,6 +66,7 @@ class _LoginPageState extends State<LoginPage> {
   final _contraController = TextEditingController();
 
   String mensaje = ''; // Mensaje para mostrar errores de inicio de sesión
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -80,72 +85,105 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
 
     return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: Form(
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
             Container(
-              // Imagen del login
-              padding: const EdgeInsets.only(top: 100),
-              child: Image.asset(
-                'assets/img/logoUASLP.png',
-                width: 200,
-                height: 200,
-                fit: BoxFit.contain,
+              height: MediaQuery.of(context).size.height * 0.4,
+              decoration: const BoxDecoration(
+                color: Color.fromARGB(255, 8, 50, 96),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(50),
+                  bottomRight: Radius.circular(50),
+                ),
+              ),
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 50),
+                  child: Image.asset(
+                    'assets/img/uaslp_logo_clean.png',
+                    width: 180,
+                    height: 180,
+                    fit: BoxFit.contain,
+                  ),
+                ),
               ),
             ),
-            Container(
-              //Container del formulario
-              height: MediaQuery.of(context).size.height / 2,
-              width: MediaQuery.of(context).size.width,
-              padding: const EdgeInsets.only(top: 80),
+            Padding(
+              padding: const EdgeInsets.all(30.0),
               child: Column(
                 children: <Widget>[
-                  SizedBox(
-                    // Campo para ingresar la clave única
-                    width: MediaQuery.of(context).size.width * 0.8,
-                    child: TextFormField(
-                      controller: _claveController,
-                      decoration: const InputDecoration(
-                        labelText: 'Clave Única',
+                  const SizedBox(height: 20),
+                  const Text(
+                    "Bienvenido",
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromARGB(255, 8, 50, 96),
+                    ),
+                  ),
+                  const Text(
+                    "Ingresa tus credenciales para continuar",
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                  const SizedBox(height: 40),
+                  TextField(
+                    controller: _claveController,
+                    decoration: InputDecoration(
+                      labelText: 'Clave Única',
+                      prefixIcon: const Icon(Icons.person_outline),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
                       ),
                     ),
                   ),
-                  SizedBox(
-                    // Campo para ingresar la contraseña
-                    width: MediaQuery.of(context).size.width * 0.8,
-                    child: TextFormField(
-                      controller: _contraController,
-                      obscureText: true,
-                      decoration: const InputDecoration(
-                        labelText: 'Contraseña',
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: _contraController,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      labelText: 'Contraseña',
+                      prefixIcon: const Icon(Icons.lock_outline),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20.0),
-                  Center(
-                    // Botón para el inicio de sesión
+                  const SizedBox(height: 40),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 55,
                     child: ElevatedButton(
-                      onPressed: () {
-                        Funciones.login(
-                            _claveController.text,
-                            _contraController.text,
-                            context,
-                            setState,
-                            mensaje,
-                            actualizaMensaje); // Llamar a la función de inicio de sesión
-                      },
+                      onPressed: _isLoading ? null : _intentarLogin,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color.fromARGB(255, 8, 50, 96),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        elevation: 5,
                       ),
-                      child: const Text('Iniciar Sesión'),
+                      child: _isLoading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text(
+                              'INICIAR SESIÓN',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1.2,
+                              ),
+                            ),
                     ),
                   ),
-                  Text(
-                    // Mensaje de error en caso de clave o contrseña incorrectos
-                    mensaje,
-                    style: const TextStyle(fontSize: 25.0, color: Colors.red),
-                  )
+                  if (mensaje.isNotEmpty) ...[
+                    const SizedBox(height: 20),
+                    Text(
+                      mensaje,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Colors.blueGrey, fontSize: 14),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -153,5 +191,27 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
+  }
+
+  void _intentarLogin() async {
+    setState(() {
+      _isLoading = true;
+      actualizaMensaje("");
+    });
+    try {
+      await Funciones.login(
+          _claveController.text.trim(),
+          _contraController.text,
+          context,
+          setState,
+          mensaje,
+          actualizaMensaje);
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 }

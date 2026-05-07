@@ -1,7 +1,7 @@
 // ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api, avoid_print
 
 import 'package:flutter/material.dart';
-import 'package:fcq_app/main.dart';
+import 'package:fcq_app/main.dart' as globals;
 import 'package:fcq_app/actividad.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fcq_app/funciones.dart';
@@ -19,7 +19,6 @@ class _HomeState extends State<Home> {
   bool isLoading = false;
   ScrollController autoScroll = ScrollController();
 
-  //Función que asegura que la agenda se actualice para mostrar correctamente
   void actualizaAgenda(List<dynamic> agenda, bool L) {
     setState(() {
       datosAgenda = agenda;
@@ -27,7 +26,6 @@ class _HomeState extends State<Home> {
     });
   }
 
-  //Función que asegura que la agenda se actualice para mostrar correctamente
   void actualizaMensaje(String nuevoMensaje) {
     setState(() {
       mensaje = nuevoMensaje;
@@ -36,11 +34,9 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
-    // Función que se ejecuta antes de construir la pantalla
     super.initState();
     isLoading = true;
-    Funciones.obtenerAgenda(
-        datosAgenda, isLoading, setState, actualizaAgenda, actualizaMensaje);
+    Funciones.obtenerAgenda(datosAgenda, isLoading, setState, actualizaAgenda, actualizaMensaje);
     Funciones.programarNotificaciones();
   }
 
@@ -49,201 +45,328 @@ class _HomeState extends State<Home> {
     autoScroll = Funciones.scrollAutomatico(datosAgenda, autoScroll);
 
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 245, 247, 250),
       appBar: PreferredSize(
           preferredSize: const Size.fromHeight(100.0),
           child: Funciones.buildAppBar(
-              urlFoto: urlFoto,
-              clave: clave,
-              nombreCompleto: nombreCompleto,
-              carrera: carrera)),
+              urlFoto: globals.urlFoto,
+              clave: globals.clave,
+              nombreCompleto: globals.nombreCompleto,
+              carrera: globals.carrera)),
       body: Column(
         children: [
-          Container(
-            // Barra superior que indica el significado del icono warning
-            padding: const EdgeInsets.all(10.0),
-            color: const Color.fromARGB(255, 218, 218, 218),
-            child: const Row(
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Row(
-                  children: [
-                    Icon(
-                      Icons.warning,
-                      color: Color.fromARGB(255, 252, 17, 0),
-                    ),
-                    SizedBox(width: 8),
-                    Text("Requisito de inscripción"),
-                  ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          "Agenda de Actividades",
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                            color: Color.fromARGB(255, 8, 50, 96),
+                          ),
+                          maxLines: 1,
+                        ),
+                      ),
+                      Text(
+                        "Ciclo escolar: ${globals.ciclo ?? '---'}",
+                        style: const TextStyle(fontSize: 11, color: Colors.blueGrey),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.warning, color: Colors.red, size: 12),
+                      SizedBox(width: 4),
+                      Text(
+                        "Requisito de inscripción",
+                        style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
-          Visibility(
-              visible: mensaje.isNotEmpty,
+          if (mensaje.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.all(20.0),
               child: Text(
-                // Mensaje de error en caso de no encontrar actividades
                 mensaje,
-                style: const TextStyle(fontSize: 25.0, color: Colors.red),
-              )),
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 16, color: Colors.blueGrey, fontStyle: FontStyle.italic),
+              ),
+            ),
           Expanded(
             child: RefreshIndicator(
+              color: const Color.fromARGB(255, 8, 50, 96),
               onRefresh: () async {
                 Funciones.mantenerSesion(context);
-                // Llama a las funciones que necesiten actualizarse al hacer refresh en la app
-                await Funciones.obtenerAgenda(datosAgenda, isLoading, setState,
-                    actualizaAgenda, actualizaMensaje);
+                await Funciones.obtenerAgenda(datosAgenda, isLoading, setState, actualizaAgenda, actualizaMensaje);
               },
-              child: SizedBox(
-                child: isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : ListView.builder(
-                        controller: autoScroll,
-                        itemCount: datosAgenda.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          final item = datosAgenda[index];
-                          // Define las fechas en formato DateTime para posteriormente asignar un color a cada actividad segun las fechas
-                          final fechaInicio = DateTime.parse(item['fecha_ini']);
-                          final fechaFin = item['fecha_fin'] != null
-                              ? DateTime.parse(item['fecha_fin'])
-                              : null;
+              child: isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : ListView.builder(
+                controller: autoScroll,
+                padding: const EdgeInsets.all(12),
+                itemCount: datosAgenda.length,
+                itemBuilder: (BuildContext context, int index) {
+                  final item = datosAgenda[index];
+                  final fechaInicio = DateTime.parse(item['fecha_ini']);
+                  final fechaFin = item['fecha_fin'] != null ? DateTime.parse(item['fecha_fin']) : null;
+                  final now = DateTime.now();
 
-                          final esFechaPasada = fechaFin != null &&
-                              fechaFin.isBefore(DateTime.now());
-                          final esFechaEnCurso =
-                              fechaInicio.isBefore(DateTime.now()) &&
-                                  (fechaFin == null ||
-                                      fechaFin.isAfter(DateTime.now()));
-                          final esFechaPasadaNull = fechaFin == null &&
-                              fechaInicio.isBefore(DateTime.now());
+                  Color colorBorde;
+                  if (now.isBefore(fechaInicio)) {
+                    colorBorde = Colors.blueAccent; // PRÓXIMAMENTE
+                  } else if (fechaFin != null) {
+                    if (now.isBefore(fechaFin)) {
+                      colorBorde = Colors.green; // VIGENTE (en rango)
+                    } else {
+                      colorBorde = Colors.redAccent; // FINALIZADA
+                    }
+                  } else {
+                    // Si no tiene fecha de fin y ya pasó su inicio -> ROJO
+                    colorBorde = Colors.redAccent;
+                  }
 
-                          Color
-                              colorActividad; //Variable que almacena el color de la actividad que se mostrará según la fecha
-
-                          if (esFechaPasada || esFechaPasadaNull) {
-                            colorActividad = const Color.fromRGBO(
-                                252, 111, 111, 1.0); // Rojo
-                          } else if (esFechaEnCurso) {
-                            colorActividad = const Color.fromRGBO(
-                                110, 192, 120, 1.0); // Verde
-                          } else {
-                            colorActividad = const Color.fromRGBO(
-                                110, 192, 252, 1.0); // Azul
-                          }
-
-                          return SizedBox(
-                            height:
-                                100, // Establece la altura deseada para cada elemento
-                            child: InkWell(
-                              onTap: () {
-                                // Navegar a otra pantalla con más información sobre la actividad
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => Actividad(item: item),
+                  return Card(
+                    elevation: 3,
+                    margin: const EdgeInsets.only(bottom: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      side: BorderSide(color: colorBorde.withOpacity(0.5), width: 1),
+                    ),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(15),
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => Actividad(item: item)));
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 5,
+                              height: 50,
+                              decoration: BoxDecoration(
+                                color: colorBorde,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            const SizedBox(width: 15),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    item['titulo'],
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                                   ),
-                                );
-                              },
-                              child: Card(
-                                color: colorActividad,
-                                child: ListTile(
-                                  title: Text(item['titulo']),
-                                  subtitle: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                  const SizedBox(height: 5),
+                                  Row(
                                     children: [
-                                      const SizedBox(height: 8),
+                                      const Icon(Icons.calendar_month_outlined, size: 14, color: Colors.grey),
+                                      const SizedBox(width: 5),
                                       Text(
-                                        // Formatea la fecha
-                                        ' ${Funciones.formatoFecha(item['fecha_ini'])}${item['fecha_fin'] != null ? ' a ${Funciones.formatoFecha(item['fecha_fin'])}' : ''}',
+                                        Funciones.formatoFecha(item['fecha_ini']),
+                                        style: const TextStyle(fontSize: 12, color: Colors.black54),
                                       ),
                                     ],
                                   ),
-                                  trailing: item['requisito'] ==
-                                          1
-                                              .toString() // Muestra el icóno Danger según los datos del campo requisito de la BD
-                                      ? const Icon(Icons.warning,
-                                          color:
-                                              Color.fromARGB(255, 252, 17, 0))
-                                      : const Visibility(
-                                          visible: false,
-                                          child: Icon(Icons.warning,
-                                              color: Colors.transparent),
-                                        ),
-                                ),
+                                ],
                               ),
                             ),
-                          );
-                        },
+                            if (item['requisito'] == '1')
+                              const Icon(Icons.warning, color: Colors.red, size: 20),
+                            const Icon(Icons.chevron_right, color: Colors.grey),
+                          ],
+                        ),
                       ),
+                    ),
+                  );
+                },
               ),
             ),
           ),
         ],
       ),
-      bottomNavigationBar: BottomAppBar(
-        // Barra inferior que permite navegar a más pantallas
-        child: Row(
-          children: <Widget>[
-            // *Agregar más elementos al bottomNavigationBar si es necesario
-            IconButton(
-              icon: const Icon(Icons.description), //Icono de descripción
-              onPressed: () {
-                Navigator.pushNamed(context, '/parciales');
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.web_asset), //Icono de descripción
-              onPressed: () {
-                Navigator.pushNamed(context, '/info');
-              },
-            ),
-            const Spacer(),
-            IconButton(
-              icon: const Icon(Icons.logout), // Icono de cerrar sesión
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: const Text('Cerrar Sesión'),
-                      content: const Text('¿Seguro que quieres cerrar sesión?'),
-                      actions: <Widget>[
-                        TextButton(
-                          onPressed: () async {
-                            // Cerrar sesión
-                            Funciones.editarSesion(0.toString());
-                            SharedPreferences pref =
-                                await SharedPreferences.getInstance();
-                            await pref
-                                .clear(); // Borra todos los datos de SharedPreferences
-
-                            // Navegar de regreso a la pantalla de inicio de sesión
-                            Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    const LoginPage(), // Regresa a la pantalla de inicio de sesión
-                              ),
-                              (route) =>
-                                  false, // Esta función evita que el usuario pueda volver atrás una vez cerrada la sesión
-                            );
-                          },
-                          child: const Text('Aceptar'),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context)
-                                .pop(); // Cierra el cuadro de diálogo
-                          },
-                          child: const Text('Cancelar'),
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, -2),
             ),
           ],
         ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildCustomNavItem(
+                  icon: Icons.calendar_month_outlined,
+                  selectedIcon: Icons.calendar_month,
+                  label: 'Agenda',
+                  isSelected: true,
+                  onTap: () {},
+                ),
+                _buildCustomNavItem(
+                  icon: Icons.fact_check_outlined,
+                  selectedIcon: Icons.fact_check,
+                  label: 'Parciales',
+                  isSelected: false,
+                  onTap: () => Navigator.pushNamed(context, '/parciales'),
+                ),
+                _buildCustomNavItem(
+                  icon: Icons.assignment_turned_in_outlined,
+                  selectedIcon: Icons.assignment_turned_in,
+                  label: 'Requisitos',
+                  isSelected: false,
+                  onTap: () {},
+                ),
+                _buildCustomNavItem(
+                  icon: Icons.event_note_outlined,
+                  selectedIcon: Icons.event_note,
+                  label: 'Actividad',
+                  isSelected: false,
+                  onTap: () {},
+                ),
+                _buildCustomNavItem(
+                  icon: Icons.logout_rounded,
+                  selectedIcon: Icons.logout_rounded,
+                  label: 'Salir',
+                  isSelected: false,
+                  isLogout: true,
+                  onTap: () => _confirmarCierre(context),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCustomNavItem({
+    required IconData icon,
+    required IconData selectedIcon,
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+    bool isLogout = false,
+    // Tip: Pass BuildContext if you want to use Theme.of(context) here
+  }) {
+    const Color primaryColor = Color.fromARGB(255, 8, 50, 96);
+    final Color activeColor = isLogout ? Colors.redAccent : primaryColor;
+    final Color currentColor = isSelected ? activeColor : activeColor.withOpacity(0.7);
+
+    return Expanded(
+      child: Padding(
+        // Moved the margin out here so it doesn't interfere with the tap ripple
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(12),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeInOut,
+              decoration: BoxDecoration(
+                color: isSelected ? activeColor.withOpacity(0.1) : Colors.transparent,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: isSelected ? activeColor.withOpacity(0.5) : Colors.transparent,
+                  width: 1.5,
+                ),
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 250),
+                    child: Icon(
+                      isSelected ? selectedIcon : icon,
+                      // Provide a key so AnimatedSwitcher knows when the icon changes
+                      key: ValueKey<bool>(isSelected),
+                      color: currentColor,
+                      size: isSelected ? 26 : 24,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 2),
+                    child: Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 9,
+                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        color: currentColor,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _confirmarCierre(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Cerrar Sesión'),
+        content: const Text('¿Estás seguro de que quieres salir?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCELAR')),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent, foregroundColor: Colors.white),
+            onPressed: () async {
+              Funciones.editarSesion("0");
+              SharedPreferences pref = await SharedPreferences.getInstance();
+              await pref.clear();
+              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const globals.LoginPage()), (route) => false);
+            },
+            child: const Text('CERRAR SESIÓN'),
+          ),
+        ],
       ),
     );
   }

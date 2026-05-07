@@ -1,8 +1,9 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
-import 'package:fcq_app/main.dart';
+import 'package:fcq_app/main.dart' as globals;
 import 'package:fcq_app/funciones.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Parciales extends StatefulWidget {
   const Parciales({super.key});
@@ -46,10 +47,10 @@ class _Parcial extends State<Parciales> {
       appBar: PreferredSize(
           preferredSize: const Size.fromHeight(100.0),
           child: Funciones.buildAppBar(
-              urlFoto: urlFoto,
-              clave: clave,
-              nombreCompleto: nombreCompleto,
-              carrera: carrera)),
+              urlFoto: globals.urlFoto,
+              clave: globals.clave,
+              nombreCompleto: globals.nombreCompleto,
+              carrera: globals.carrera)),
       body: Column(children: [
         Visibility(
             visible: mensaje.isNotEmpty,
@@ -60,260 +61,402 @@ class _Parcial extends State<Parciales> {
             )),
         Expanded(
             child: SizedBox(
-          child: isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : ListView.builder(
-                  itemCount: parciales.length,
-                  itemBuilder: (context, index) {
-                    final parcial = parciales[index];
-                    return SizedBox(
-                      height: 170,
-                      child: Card(
-                        color: const Color.fromARGB(255, 220, 220, 220),
-                        child: Column(
-                          children: [
-                            ListTile(
-                              //Aquí se extrae el contenido de la función Future<String> obtenerMateria()
-                              title: parcial['nombre_mat'],
-                              subtitle: Padding(
-                                padding: const EdgeInsets.only(
-                                    bottom:
-                                        16.0), // Espaciado solo en la parte inferior
-                                child: Text(
-                                    'Profesor: ${parcial['nombre_pro'] ?? ''}',
-                                    style: const TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold,
-                                    )),
-                              ),
+              child: isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : ListView.builder(
+                itemCount: parciales.length,
+                itemBuilder: (context, index) {
+                  final parcial = parciales[index];
+                  return SizedBox(
+                    height: 170,
+                    child: Card(
+                      color: const Color.fromARGB(255, 220, 220, 220),
+                      child: Column(
+                        children: [
+                          ListTile(
+                            title: Text(
+                              parcial['nombre_mat'] ?? 'Materia sin nombre',
+                              style: const TextStyle(fontWeight: FontWeight.bold),
                             ),
-                            Table(
-                              border: TableBorder.symmetric(
-                                inside: const BorderSide(
-                                    width: 1.0,
-                                    color: Color.fromARGB(255, 150, 150,
-                                        150)), // Borde entre celdas
-                                outside: BorderSide
-                                    .none, // No se muestra el borde exterior
-                              ),
-                              children: [
-                                TableRow(
-                                  children: [
-                                    TableCell(
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 8.0),
-                                        child: const Center(
-                                          child: Text(
-                                            'P1',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight
-                                                    .bold), // Aplica negritas
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    TableCell(
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 8.0),
-                                        child: const Center(
-                                          child: Text(
-                                            'P2',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    TableCell(
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 8.0),
-                                        child: const Center(
-                                          child: Text(
-                                            'P3',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    TableCell(
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 8.0),
-                                        child: const Center(
-                                          child: Text(
-                                            'P4',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    TableCell(
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 8.0),
-                                        child: const Center(
-                                          child: Text(
-                                            'P5',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    TableCell(
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 8.0),
-                                        child: const Center(
-                                          child: Text(
-                                            'EO',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    TableCell(
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 8.0),
-                                        child: const Center(
-                                          child: Text(
-                                            'EE',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    TableCell(
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 8.0),
-                                        child: const Center(
-                                          child: Text(
-                                            'ET',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                TableRow(
-                                  children: [
-                                    // Los signos ?? (operador de fusión nula) proporcionan un valor de respaldo en caso de que el campo sea null
-                                    TableCell(
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 8.0),
-                                        child: Center(
-                                          child:
-                                              Text(parcial['parcial_1'] ?? ''),
-                                        ),
-                                      ),
-                                    ),
-                                    TableCell(
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 8.0),
-                                        child: Center(
-                                          child:
-                                              Text(parcial['parcial_2'] ?? ''),
-                                        ),
-                                      ),
-                                    ),
-                                    TableCell(
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 8.0),
-                                        child: Center(
-                                          child:
-                                              Text(parcial['parcial_3'] ?? ''),
-                                        ),
-                                      ),
-                                    ),
-                                    TableCell(
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 8.0),
-                                        child: Center(
-                                          child:
-                                              Text(parcial['parcial_4'] ?? ''),
-                                        ),
-                                      ),
-                                    ),
-                                    TableCell(
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 8.0),
-                                        child: Center(
-                                          child:
-                                              Text(parcial['parcial_5'] ?? ''),
-                                        ),
-                                      ),
-                                    ),
-                                    TableCell(
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 8.0),
-                                        child: Center(
-                                          child:
-                                              Text(parcial['final_ord'] ?? ''),
-                                        ),
-                                      ),
-                                    ),
-                                    TableCell(
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 8.0),
-                                        child: Center(
-                                          child:
-                                              Text(parcial['final_ee'] ?? ''),
-                                        ),
-                                      ),
-                                    ),
-                                    TableCell(
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 8.0),
-                                        child: Center(
-                                          child:
-                                              Text(parcial['final_et'] ?? ''),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                            subtitle: Padding(
+                              padding: const EdgeInsets.only(
+                                  bottom:
+                                  16.0), // Espaciado solo en la parte inferior
+                              child: Text(
+                                  'Profesor: ${parcial['nombre_pro'] ?? ''}',
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                  )),
                             ),
-                          ],
-                        ),
+                          ),
+                          Table(
+                            border: const TableBorder.symmetric(
+                              inside: BorderSide(
+                                  width: 1.0,
+                                  color: Color.fromARGB(255, 150, 150,
+                                      150)), // Borde entre celdas
+                              outside: BorderSide
+                                  .none, // No se muestra el borde exterior
+                            ),
+                            children: [
+                              TableRow(
+                                children: [
+                                  TableCell(
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8.0),
+                                      child: const Center(
+                                        child: Text(
+                                          'P1',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight
+                                                  .bold), // Aplica negritas
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  TableCell(
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8.0),
+                                      child: const Center(
+                                        child: Text(
+                                          'P2',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  TableCell(
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8.0),
+                                      child: const Center(
+                                        child: Text(
+                                          'P3',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  TableCell(
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8.0),
+                                      child: const Center(
+                                        child: Text(
+                                          'P4',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  TableCell(
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8.0),
+                                      child: const Center(
+                                        child: Text(
+                                          'P5',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  TableCell(
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8.0),
+                                      child: const Center(
+                                        child: Text(
+                                          'EO',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  TableCell(
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8.0),
+                                      child: const Center(
+                                        child: Text(
+                                          'EE',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  TableCell(
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8.0),
+                                      child: const Center(
+                                        child: Text(
+                                          'ET',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              TableRow(
+                                children: [
+                                  // Los signos ?? (operador de fusión nula) proporcionan un valor de respaldo en caso de que el campo sea null
+                                  TableCell(
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8.0),
+                                      child: Center(
+                                        child:
+                                        Text(parcial['parcial_1'] ?? ''),
+                                      ),
+                                    ),
+                                  ),
+                                  TableCell(
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8.0),
+                                      child: Center(
+                                        child:
+                                        Text(parcial['parcial_2'] ?? ''),
+                                      ),
+                                    ),
+                                  ),
+                                  TableCell(
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8.0),
+                                      child: Center(
+                                        child:
+                                        Text(parcial['parcial_3'] ?? ''),
+                                      ),
+                                    ),
+                                  ),
+                                  TableCell(
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8.0),
+                                      child: Center(
+                                        child:
+                                        Text(parcial['parcial_4'] ?? ''),
+                                      ),
+                                    ),
+                                  ),
+                                  TableCell(
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8.0),
+                                      child: Center(
+                                        child:
+                                        Text(parcial['parcial_5'] ?? ''),
+                                      ),
+                                    ),
+                                  ),
+                                  TableCell(
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8.0),
+                                      child: Center(
+                                        child:
+                                        Text(parcial['final_ord'] ?? ''),
+                                      ),
+                                    ),
+                                  ),
+                                  TableCell(
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8.0),
+                                      child: Center(
+                                        child:
+                                        Text(parcial['final_ee'] ?? ''),
+                                      ),
+                                    ),
+                                  ),
+                                  TableCell(
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8.0),
+                                      child: Center(
+                                        child:
+                                        Text(parcial['final_et'] ?? ''),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                    );
-                  },
-                ),
-        )),
+                    ),
+                  );
+                },
+              ),
+            )),
       ]),
-      bottomNavigationBar: BottomAppBar(
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, -2),
             ),
           ],
         ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildCustomNavItem(
+                  icon: Icons.calendar_month_outlined,
+                  selectedIcon: Icons.calendar_month,
+                  label: 'Agenda',
+                  isSelected: false,
+                  onTap: () => Navigator.pushReplacementNamed(context, '/index'),
+                ),
+                _buildCustomNavItem(
+                  icon: Icons.fact_check_outlined,
+                  selectedIcon: Icons.fact_check,
+                  label: 'Parciales',
+                  isSelected: true,
+                  onTap: () {},
+                ),
+                _buildCustomNavItem(
+                  icon: Icons.assignment_turned_in_outlined,
+                  selectedIcon: Icons.assignment_turned_in,
+                  label: 'Requisitos',
+                  isSelected: false,
+                  onTap: () {},
+                ),
+                _buildCustomNavItem(
+                  icon: Icons.event_note_outlined,
+                  selectedIcon: Icons.event_note,
+                  label: 'Actividad',
+                  isSelected: false,
+                  onTap: () {},
+                ),
+                _buildCustomNavItem(
+                  icon: Icons.logout_rounded,
+                  selectedIcon: Icons.logout_rounded,
+                  label: 'Salir',
+                  isSelected: false,
+                  isLogout: true,
+                  onTap: () => _confirmarCierre(context),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCustomNavItem({
+    required IconData icon,
+    required IconData selectedIcon,
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+    bool isLogout = false,
+    // Tip: Pass BuildContext if you want to use Theme.of(context) here
+  }) {
+    const Color primaryColor = Color.fromARGB(255, 8, 50, 96);
+    final Color activeColor = isLogout ? Colors.redAccent : primaryColor;
+    final Color currentColor = isSelected ? activeColor : activeColor.withOpacity(0.7);
+
+    return Expanded(
+      child: Padding(
+        // Moved the margin out here so it doesn't interfere with the tap ripple
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(12),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeInOut,
+              decoration: BoxDecoration(
+                color: isSelected ? activeColor.withOpacity(0.1) : Colors.transparent,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: isSelected ? activeColor.withOpacity(0.5) : Colors.transparent,
+                  width: 1.5,
+                ),
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 250),
+                    child: Icon(
+                      isSelected ? selectedIcon : icon,
+                      // Provide a key so AnimatedSwitcher knows when the icon changes
+                      key: ValueKey<bool>(isSelected),
+                      color: currentColor,
+                      size: isSelected ? 26 : 24,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 2),
+                    child: Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 9,
+                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        color: currentColor,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _confirmarCierre(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Cerrar Sesión'),
+        content: const Text('¿Estás seguro de que quieres salir?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCELAR')),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent, foregroundColor: Colors.white),
+            onPressed: () async {
+              Funciones.editarSesion("0");
+              SharedPreferences pref = await SharedPreferences.getInstance();
+              await pref.clear();
+              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const globals.LoginPage()), (route) => false);
+            },
+            child: const Text('CERRAR SESIÓN'),
+          ),
+        ],
       ),
     );
   }
