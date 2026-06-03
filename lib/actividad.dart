@@ -40,6 +40,10 @@ class Actividad extends StatelessWidget {
               HtmlWidget(
                 item['descripcion'] ?? "",
                 textStyle: const TextStyle(fontSize: 16),
+                onTapUrl: (url) async {
+                  await _lanzarURL(url);
+                  return true;
+                },
               ),
               const SizedBox(height: 20),
               const Divider(),
@@ -53,7 +57,7 @@ class Actividad extends StatelessWidget {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, -2),
             ),
@@ -134,9 +138,9 @@ class Actividad extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.05),
+        color: color.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: color.withOpacity(0.3), width: 1),
+        border: Border.all(color: color.withValues(alpha: 0.3), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -206,7 +210,7 @@ class Actividad extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: color, width: 1),
       ),

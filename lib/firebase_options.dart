@@ -50,18 +50,18 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAmZ9_Hsou6D2lMlDea9LG-Qmdiz1syDA4',
-    appId: '1:214959503916:android:92a5e4a424e2944630af89',
-    messagingSenderId: '214959503916',
-    projectId: 'fcq-notificaciones-5250f',
+    apiKey: 'AIzaSyAdb_IV_0yKSCsA7DbSZWZJYKwXSNFNqsU',
+    appId: '1:347959341879:android:6fadfa3bd51094f01fa0b2',
+    messagingSenderId: '347959341879',
+    projectId: 'appinfomat-fcq',
     storageBucket: 'fcq-notificaciones-5250f.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCz6Ux8bNG8anCnzVYPw4f7XLPrkvIPX5E',
+    apiKey: 'AIzaSyAdb_IV_0yKSCsA7DbSZWZJYKwXSNFNqsU',
     appId: '1:214959503916:ios:ed572912f4ee3d0c30af89',
-    messagingSenderId: '214959503916',
-    projectId: 'fcq-notificaciones-5250f',
+    messagingSenderId: '347959341879',
+    projectId: 'appinfomat-fcq',
     storageBucket: 'fcq-notificaciones-5250f.appspot.com',
     iosBundleId: 'com.example.fcqApp',
   );

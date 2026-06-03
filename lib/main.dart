@@ -5,18 +5,29 @@ import 'package:fcq_app/firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'package:fcq_app/index.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:fcq_app/funciones.dart';
 import 'package:fcq_app/parciales.dart';
 
 // Clave global para el navigatorKey, que permite la navegación en toda la aplicación
 final navigatorKey = GlobalKey<NavigatorState>();
 
+// Función obligatoria para manejar mensajes en segundo plano (debe estar fuera de cualquier clase)
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  print("HOLA desde el segundo plano: ${message.notification?.title}");
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  
+
+  // Registrar el manejador de segundo plano
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
   // No esperamos a las notificaciones para arrancar la App
-  FirebaseApi().iniNotificacion(); 
+  FirebaseApi().iniNotificacion();
 
   runApp(const LoginApp());
 }

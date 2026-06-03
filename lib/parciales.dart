@@ -309,7 +309,7 @@ class _Parcial extends State<Parciales> {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, -2),
             ),
@@ -376,7 +376,7 @@ class _Parcial extends State<Parciales> {
   }) {
     const Color primaryColor = Color.fromARGB(255, 8, 50, 96);
     final Color activeColor = isLogout ? Colors.redAccent : primaryColor;
-    final Color currentColor = isSelected ? activeColor : activeColor.withOpacity(0.7);
+    final Color currentColor = isSelected ? activeColor : activeColor.withValues(alpha: 0.7);
 
     return Expanded(
       child: Padding(
@@ -391,10 +391,10 @@ class _Parcial extends State<Parciales> {
               duration: const Duration(milliseconds: 250),
               curve: Curves.easeInOut,
               decoration: BoxDecoration(
-                color: isSelected ? activeColor.withOpacity(0.1) : Colors.transparent,
+                color: isSelected ? activeColor.withValues(alpha: 0.1) : Colors.transparent,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: isSelected ? activeColor.withOpacity(0.5) : Colors.transparent,
+                  color: isSelected ? activeColor.withValues(alpha: 0.5) : Colors.transparent,
                   width: 1.5,
                 ),
               ),
@@ -449,6 +449,9 @@ class _Parcial extends State<Parciales> {
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent, foregroundColor: Colors.white),
             onPressed: () async {
+              // Limpiar notificaciones de Firebase
+              await Funciones.logoutFirebase();
+
               Funciones.editarSesion("0");
               SharedPreferences pref = await SharedPreferences.getInstance();
               await pref.clear();

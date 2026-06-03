@@ -5,6 +5,7 @@ import 'dart:async';
 
 import 'dart:io';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
@@ -211,6 +212,9 @@ class Funciones {
           globals.ciclo = user.ciclo;
         });
 
+        // SINCRONIZAR TOKEN CON EL SERVIDOR
+        await registrarTokenServidor(user.claveUnica);
+
         if (redireccionar && (ModalRoute.of(context)?.settings.name == '/' || ModalRoute.of(context)?.settings.name == '/login')) {
           Navigator.pushReplacementNamed(context, '/index');
         }
@@ -317,6 +321,12 @@ class Funciones {
       await pref.setString('urlFoto', user.urlFoto);
       await pref.setString('carrera', user.carrera);
       await pref.setString('ciclo', user.ciclo);
+
+      // RE-ACTIVAR NOTIFICACIONES AL LOGUEAR
+      await FirebaseMessaging.instance.subscribeToTopic('Actividades');
+      
+      // SINCRONIZAR TOKEN CON EL SERVIDOR
+      await registrarTokenServidor(user.claveUnica);
 
       await editarSesion("1");
       Navigator.pushReplacementNamed(context, '/index');
@@ -517,6 +527,22 @@ class Funciones {
     }
   }
 
+  /// Limpia la sesión de Firebase al cerrar sesión en el app.
+  /// Desuscribe del tema.
+  static Future<void> logoutFirebase() async {
+    try {
+      // 1. Desuscribirse del tema de actividades (Evita notificaciones masivas)
+      await FirebaseMessaging.instance.unsubscribeFromTopic('Actividades');
+
+      // NOTA: Ya no borramos el token con deleteToken() para evitar retrasos de propagación.
+      // El token permanece igual, pero el dispositivo deja de pertenecer al tema.
+
+      print('🔔 Firebase: Sesión cerrada y desuscripción de temas exitosa');
+    } catch (e) {
+      print('⚠️ Error al desactivar notificaciones en Firebase: $e');
+    }
+  }
+
   static ScrollController scrollAutomatico(List<dynamic> datosAgenda, ScrollController autoScroll) {
     int index = datosAgenda.indexWhere((item) {
       final inicio = DateTime.tryParse(item['fecha_ini'] ?? "");
@@ -530,5 +556,34 @@ class Funciones {
       });
     }
     return autoScroll;
+  }
+
+  /// Envía el token de Firebase al servidor para notificaciones INDIVIDUALES
+  static Future<void> registrarTokenServidor(String claveUnica) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    String? token = pref.getString('dispositivo_token'); 
+
+    if (token != null && token.isNotEmpty) {
+      try {
+        final payload = {
+          "clave_unica": claveUnica,
+          "token": token,
+          "sesion_app": "1",
+        };
+
+        // Enviamos por AMBOS métodos (Params para GET y Body para POST)
+        // para asegurar compatibilidad total con el script PHP
+        final response = await ApiService.request(
+            "https://fcq.uaslp.mx/secciones/api/editar_sesion.php",
+            method: 'POST',
+            params: payload, // Esto viaja en la URL (?token=...)
+            body: payload    // Esto viaja en el cuerpo del mensaje
+        );
+        print('✅ Token y sesión sincronizados para la clave $claveUnica (Dual Method)');
+        print('📥 RESPUESTA DEL SERVIDOR: ${response.body}');
+      } catch (e) {
+        print('⚠️ Error al registrar token en el servidor: $e');
+      }
+    }
   }
 }

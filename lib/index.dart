@@ -90,7 +90,7 @@ class _HomeState extends State<Home> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.1),
+                    color: Colors.red.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Row(
@@ -158,7 +158,7 @@ class _HomeState extends State<Home> {
                     margin: const EdgeInsets.only(bottom: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
-                      side: BorderSide(color: colorBorde.withOpacity(0.5), width: 1),
+                      side: BorderSide(color: colorBorde.withValues(alpha: 0.5), width: 1),
                     ),
                     child: InkWell(
                       borderRadius: BorderRadius.circular(15),
@@ -219,7 +219,7 @@ class _HomeState extends State<Home> {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, -2),
             ),
@@ -286,7 +286,7 @@ class _HomeState extends State<Home> {
   }) {
     const Color primaryColor = Color.fromARGB(255, 8, 50, 96);
     final Color activeColor = isLogout ? Colors.redAccent : primaryColor;
-    final Color currentColor = isSelected ? activeColor : activeColor.withOpacity(0.7);
+    final Color currentColor = isSelected ? activeColor : activeColor.withValues(alpha: 0.7);
 
     return Expanded(
       child: Padding(
@@ -301,10 +301,10 @@ class _HomeState extends State<Home> {
               duration: const Duration(milliseconds: 250),
               curve: Curves.easeInOut,
               decoration: BoxDecoration(
-                color: isSelected ? activeColor.withOpacity(0.1) : Colors.transparent,
+                color: isSelected ? activeColor.withValues(alpha: 0.1) : Colors.transparent,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: isSelected ? activeColor.withOpacity(0.5) : Colors.transparent,
+                  color: isSelected ? activeColor.withValues(alpha: 0.5) : Colors.transparent,
                   width: 1.5,
                 ),
               ),
@@ -359,6 +359,9 @@ class _HomeState extends State<Home> {
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent, foregroundColor: Colors.white),
             onPressed: () async {
+              // Limpiar notificaciones de Firebase
+              await Funciones.logoutFirebase();
+
               Funciones.editarSesion("0");
               SharedPreferences pref = await SharedPreferences.getInstance();
               await pref.clear();
