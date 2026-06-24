@@ -11,6 +11,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fcq_app/main.dart' as globals;
+import 'package:fcq_app/main.dart'; // Añadido para acceder a navigatorKey
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 
@@ -136,7 +137,13 @@ class Funciones {
           ),
         ],
       ),
-      actions: const [],
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.notifications, color: Colors.white, size: 30),
+          onPressed: () => navigatorKey.currentState?.pushNamed('/notificaciones'),
+        ),
+        const SizedBox(width: 8),
+      ],
     );
   }
 

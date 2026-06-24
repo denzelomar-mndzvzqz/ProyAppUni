@@ -8,6 +8,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:fcq_app/funciones.dart';
 import 'package:fcq_app/parciales.dart';
+import 'package:fcq_app/notificaciones_service.dart';
+import 'package:fcq_app/notificaciones_page.dart';
 
 // Clave global para el navigatorKey, que permite la navegación en toda la aplicación
 final navigatorKey = GlobalKey<NavigatorState>();
@@ -16,6 +18,15 @@ final navigatorKey = GlobalKey<NavigatorState>();
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  
+  // GUARDAR EN EL HISTORIAL TAMBIÉN EN SEGUNDO PLANO
+  if (message.notification != null) {
+    await NotificacionesService.guardarNotificacion(
+      message.notification!.title ?? 'Sin título',
+      message.notification!.body ?? '',
+    );
+  }
+
   print("HOLA desde el segundo plano: ${message.notification?.title}");
 }
 
@@ -58,6 +69,7 @@ class LoginApp extends StatelessWidget {
         '/login': (BuildContext context) => const LoginPage(),
         '/index': (BuildContext context) => const Home(),
         '/parciales': (BuildContext context) => const Parciales(),
+        '/notificaciones': (BuildContext context) => const NotificacionesPage(),
       },
     );
   }

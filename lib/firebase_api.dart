@@ -2,6 +2,7 @@ import 'package:fcq_app/main.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:fcq_app/notificaciones_service.dart';
 
 class FirebaseApi {
   // Instancia de firebase messaging
@@ -72,7 +73,7 @@ class FirebaseApi {
     await platform?.createNotificationChannel(_androidChannel);
   }
 
-  // Funcion que manda al usuario a una pantalla específica cuando da clic en la notificación
+  // Función que manda al usuario a una pantalla específica cuando da clic en la notificación
   void manejarMensaje(RemoteMessage? mensaje) {
     if (mensaje == null) return;
 
@@ -104,6 +105,12 @@ class FirebaseApi {
       }
 
       print('🔔 Mensaje recibido en PRIMER PLANO: ${notification.title}');
+
+      // GUARDAR EN EL HISTORIAL
+      await NotificacionesService.guardarNotificacion(
+        notification.title ?? 'Sin título',
+        notification.body ?? '',
+      );
 
       _localNotifications.show(
         notification.hashCode,
